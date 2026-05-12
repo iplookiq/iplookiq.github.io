@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
         
@@ -295,8 +296,14 @@
         loader.style.width = '30%';
 
         try {
-            // USING IPWHO.IS - This allows HTTPS for free and bypasses Mixed Content blocks!
-            const response = await fetch(`https://ipwho.is/${input}`);
+            let response = await fetch(`https://ipwho.is/${input}`);
+            
+            // If primary fails with 403 (CORS/Plan limit), try failover
+            if (response.status === 403 || response.status === 429) {
+                console.warn("Primary API (ipwho.is) blocked request. Switching to Failover Node...");
+                return lookupFailover(input);
+            }
+
             const data = await response.json();
             
             loader.style.width = '100%';
@@ -309,9 +316,50 @@
 
             renderNetworkData(data);
         } catch (err) {
+            console.error("Primary Probe Error:", err);
+            lookupFailover(input);
+        }
+    }
+
+    async function lookupFailover(input) {
+        const loader = document.getElementById('loader-bar');
+        try {
+            const response = await fetch(`https://freeipapi.com/api/json/${input}`);
+            const raw = await response.json();
+            
+            // Map the different API format to our existing UI logic
+            const data = {
+                ip: raw.ipAddress,
+                success: true,
+                latitude: raw.latitude,
+                longitude: raw.longitude,
+                country_code: raw.countryCode,
+                city: raw.cityName,
+                continent: raw.continent,
+                postal: raw.zipCode || 'N/A',
+                connection: {
+                    isp: "Unknown (Failover Node)",
+                    org: "Unknown",
+                    asn: "N/A"
+                },
+                security: {
+                    proxy: raw.isProxy,
+                    vpn: false,
+                    tor: false,
+                    hosting: false
+                }
+            };
+
+            loader.style.width = '100%';
+            setTimeout(() => { loader.style.width = '0%'; }, 600);
+            renderNetworkData(data);
+            
+            // Visual indicator that we are in failover mode
+            document.getElementById('display-security').textContent += " (FAILOVER)";
+        } catch (err) {
             loader.style.width = '0%';
-            document.getElementById('display-security').textContent = 'Probe Failed (CORS/Network)';
-            console.error(err);
+            document.getElementById('display-security').textContent = 'All Probes Failed';
+            console.error("Failover Error:", err);
         }
     }
 
