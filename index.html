@@ -298,21 +298,68 @@
         loader.style.width = '30%';
         verdictEl.textContent = 'Probing Node...';
 
-        // Chain of providers: ipapi.co (Primary) -> ipwho.is (Secondary) -> Cloudflare (Tertiary)
+        // Chain of providers: ipapi.co (Most CORS-friendly) -> ipwho.is (Failover) -> Emergency
         try {
-            // PROBE 1: ipapi.co (Very reliable for HTTPS/CORS)
             const url = input ? `https://ipapi.co/${input}/json/` : `https://ipapi.co/json/`;
             const response = await fetch(url);
             
             if (!response.ok) throw new Error('Primary Node Throttled');
             const raw = await response.json();
             
-            if (raw.error) throw new Error('Rate Limit Reached');
+            if (raw.error) throw new Error(raw.reason || 'Rate Limit');
 
             processData(raw, 'ipapi');
         } catch (err) {
-            console.warn("Primary Node Failed, attempting Failover 1...");
+            console.warn("Primary Node Failed/Blocked:", err.message);
             lookupFailover1(input);
+        }
+    }
+
+    async function lookupFailover1(input) {
+        const loader = document.getElementById('loader-bar');
+        loader.style.width = '60%';
+        
+        try {
+            // We add a random param to try and bypass some basic cache-based 403s
+            const url = `https://ipwho.is/${input}?nocache=${Date.now()}`;
+            const response = await fetch(url);
+            
+            if (response.status === 403) throw new Error('Forbidden by Provider');
+            
+            const data = await response.json();
+            if (data.success) {
+                processData(data, 'ipwhois');
+            } else {
+                throw new Error(data.message || "Failover 1 Failed");
+            }
+        } catch (err) {
+            console.warn("Failover 1 Failed:", err.message);
+            lookupEmergency(input);
+        }
+    }
+
+    async function lookupEmergency(input) {
+        const loader = document.getElementById('loader-bar');
+        try {
+            const response = await fetch('https://1.1.1.1/cdn-cgi/trace');
+            const text = await response.text();
+            const data = Object.fromEntries(text.split('\n').filter(v=>v).map(v=>v.split('=')));
+            
+            const emergencyData = {
+                ip: data.ip,
+                success: true,
+                city: 'Unknown',
+                country_code: data.loc,
+                connection: { isp: 'Cloudflare Network', org: 'Emergency Node' },
+                security: { proxy: false, hosting: false }
+            };
+            
+            processData(emergencyData, 'emergency');
+            document.getElementById('display-security').textContent = 'EMERGENCY MODE';
+        } catch (err) {
+            loader.style.width = '0%';
+            document.getElementById('display-security').textContent = 'All Nodes Offline';
+            console.error("Critical Failure: No API reachable.");
         }
     }
 
