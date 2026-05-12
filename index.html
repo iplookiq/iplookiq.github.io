@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OFFICIAL DATA BREACH: JohnRobloxKol</title>
+    <title>OFFICIAL DATA BREACH: JohnRobloxKol & Guard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@
             color: white;
             font-family: 'Space Grotesk', sans-serif;
             overflow-x: hidden;
+            margin: 0;
         }
 
         .syncopate { font-family: 'Syncopate', sans-serif; }
@@ -34,11 +35,7 @@
 
         @keyframes glitch {
             0% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 rgba(0, 255, 0, 0.75), -0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
-            14% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 rgba(0, 255, 0, 0.75), -0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
-            15% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 rgba(0, 255, 0, 0.75), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
-            49% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 rgba(0, 255, 0, 0.75), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
             50% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 rgba(0, 255, 0, 0.75), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
-            99% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 rgba(0, 255, 0, 0.75), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
             100% { text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75), -0.025em -0.025em 0 rgba(0, 255, 0, 0.75), -0.025em -0.05em 0 rgba(0, 0, 255, 0.75); }
         }
 
@@ -53,6 +50,8 @@
             top: 0;
             left: 0;
             z-index: -1;
+            width: 100%;
+            height: 100%;
         }
 
         .scanner-line {
@@ -79,13 +78,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 1s ease-out;
+            transition: opacity 0.8s ease-out;
         }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
     </style>
 </head>
@@ -94,100 +98,145 @@
 
     <div id="loader" class="loader-wrap">
         <div class="mb-8">
-            <svg class="animate-spin h-12 w-12 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin h-16 w-16 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
         </div>
         <div class="text-cyan-400 font-mono tracking-widest text-sm" id="load-text">DECRYPTING DATABASE...</div>
-        <div class="w-64 h-1 bg-gray-800 rounded-full mt-4 overflow-hidden">
-            <div id="progress-bar" class="h-full bg-cyan-400 w-0 transition-all duration-300"></div>
+        <div class="w-64 h-1 bg-gray-900 rounded-full mt-4 overflow-hidden border border-white/5">
+            <div id="progress-bar" class="h-full bg-cyan-400 w-0 transition-all duration-300 shadow-[0_0_10px_#00f2ff]"></div>
         </div>
+        <button onclick="completeLoading()" class="mt-8 text-[10px] text-gray-500 hover:text-cyan-400 border border-gray-800 hover:border-cyan-400/50 px-6 py-2 rounded-full transition-all uppercase tracking-[0.2em]">
+            Skip Decryption [ESC]
+        </button>
     </div>
 
-    <main id="main-content" class="hidden min-h-screen flex flex-col items-center justify-center p-6 opacity-0 transition-opacity duration-1000">
+    <main id="main-content" class="hidden min-h-screen flex flex-col items-center justify-center p-6 opacity-0 transition-opacity duration-1000 relative">
         <div class="scanner-line"></div>
         
-        <div class="w-full max-w-6xl mb-8 overflow-hidden">
-            <div class="bg-red-600/20 border-y-2 border-red-500 py-4 transform -rotate-1 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
-                <div class="whitespace-nowrap flex animate-[scroll_10s_linear_infinite]">
-                    <h2 class="syncopate text-4xl md:text-8xl font-black text-red-500 glitch px-4">
-                        JOHNROBLOXKOL EXPOSED FOR LIKING MEN — 
+        <div class="w-full max-w-full mb-12 overflow-hidden">
+            <div class="bg-red-600/30 border-y-2 border-red-500 py-6 transform -rotate-1 shadow-[0_0_40px_rgba(239,68,68,0.4)]">
+                <div class="whitespace-nowrap flex animate-[scroll_12s_linear_infinite]">
+                    <h2 class="syncopate text-5xl md:text-9xl font-black text-red-500 glitch px-8">
+                        JOHNROBLOXKOL & GUARD EXPOSED — 
                     </h2>
-                    <h2 class="syncopate text-4xl md:text-8xl font-black text-red-500 glitch px-4">
-                        JOHNROBLOXKOL EXPOSED FOR LIKING MEN — 
+                    <h2 class="syncopate text-5xl md:text-9xl font-black text-red-500 glitch px-8">
+                        JOHNROBLOXKOL & GUARD EXPOSED — 
                     </h2>
                 </div>
             </div>
         </div>
 
-        <!-- Header Section -->
         <div class="max-w-4xl w-full text-center mb-12">
-            <div class="inline-block px-4 py-1 rounded-full border border-cyan-500/30 text-cyan-400 text-xs font-bold mb-4 animate-pulse">
-                CONFIDENTIAL RECORD #88219-JK
+            <div class="inline-block px-4 py-1 rounded-full border border-cyan-500/30 text-cyan-400 text-xs font-bold mb-4 animate-pulse uppercase tracking-widest">
+                CRITICAL DATABASE LEAK #88219-JKG
             </div>
-            <h1 class="syncopate text-4xl md:text-7xl font-bold mb-6 tracking-tighter">
+            <h1 class="syncopate text-4xl md:text-7xl font-bold mb-6 tracking-tighter leading-none">
                 THE <span class="text-cyan-400">TRUTH</span> ABOUT <br>
-                <span class="glitch inline-block">JOHNROBLOXKOL</span>
+                <span class="glitch inline-block mt-2">JOHN & GUARD</span>
             </h1>
         </div>
 
-        <!-- The Main Reveal -->
-        <div class="glass-card gradient-border p-12 rounded-2xl max-w-2xl w-full text-center relative overflow-hidden group">
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-purple-600/20 blur-3xl rounded-full"></div>
-            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-cyan-600/20 blur-3xl rounded-full"></div>
+        <div class="glass-card gradient-border p-10 md:p-16 rounded-3xl max-w-3xl w-full text-center relative overflow-hidden group">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-purple-600/10 blur-[100px] rounded-full"></div>
+            <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-cyan-600/10 blur-[100px] rounded-full"></div>
             
-            <p class="text-gray-400 uppercase tracking-[0.5em] text-xs mb-4">Final Verdict</p>
-            <h2 class="text-3xl md:text-5xl font-bold leading-tight mb-8">
-                JohnRobloxKol <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">LIKES MEN</span>
+            <p class="text-gray-400 uppercase tracking-[0.6em] text-[10px] mb-6">Final Investigative Verdict</p>
+            <h2 class="text-4xl md:text-6xl font-bold leading-tight mb-10">
+                Both John & Guard <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">OFFICIALLY LIKE MEN</span>
             </h2>
 
-            <div class="flex justify-center gap-4">
-                <button onclick="revealEvidence()" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95">
+            <div class="flex flex-col md:flex-row justify-center gap-6">
+                <button onclick="revealEvidence()" class="px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(0,242,255,0.4)]">
                     VIEW EVIDENCE
-                </button>
-                <button id="no-btn" onmouseover="moveButton()" class="px-8 py-3 border border-white/20 hover:bg-white/10 rounded-lg transition-all">
-                    I DON'T BELIEVE IT
                 </button>
             </div>
         </div>
 
-        <!-- Evidence Modal (Hidden by default) -->
-        <div id="evidence-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeEvidence()"></div>
-            <div class="glass-card p-8 rounded-2xl max-w-lg w-full relative border border-cyan-500/50">
-                <h3 class="syncopate text-xl text-cyan-400 mb-4">DATA ANALYSIS</h3>
-                <div class="space-y-4 font-mono text-sm">
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>Frequency of "Yass":</span>
-                        <span class="text-cyan-400">CRITICAL LEVEL</span>
+        <div id="evidence-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 hidden">
+            <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeEvidence()"></div>
+            <div class="glass-card p-10 rounded-3xl max-w-3xl w-full relative border border-cyan-500/50 overflow-y-auto max-h-[85vh] shadow-[0_0_50px_rgba(0,242,255,0.2)]">
+                <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                    <h3 class="syncopate text-xl text-cyan-400">CLASSIFIED DOSSIER</h3>
+                    <button onclick="closeEvidence()" class="text-gray-500 hover:text-white">✕</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 font-mono text-xs">
+                    <!-- John's Section -->
+                    <div class="space-y-6">
+                        <h4 class="text-purple-400 font-bold uppercase tracking-widest border-b border-purple-500/20 pb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                            SUBJECT: JOHN
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Search Preference:</span>
+                                <span class="text-red-400 font-bold">100% GAY</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Roblox Outfits:</span>
+                                <span class="text-cyan-400">FLAMBOYANT</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Voice Pitch Shift:</span>
+                                <span class="text-cyan-400">YASS-INFLECTED</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Discord Status:</span>
+                                <span class="text-cyan-400">"WHERES MY KING"</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>Roblox Avatar Swag:</span>
-                        <span class="text-cyan-400">FLAMBOYANT</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>Men Liked:</span>
-                        <span class="text-cyan-400">MANY</span>
+
+                    <!-- Guard's Section -->
+                    <div class="space-y-6">
+                        <h4 class="text-cyan-400 font-bold uppercase tracking-widest border-b border-cyan-500/20 pb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
+                            SUBJECT: GUARD
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Behavioral Matrix:</span>
+                                <span class="text-red-400 font-bold">SUSPICIOUSLY FRUITY</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Visual Tracking:</span>
+                                <span class="text-cyan-400">LOCKS ONTO MALES</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Secret Account:</span>
+                                <span class="text-cyan-400">@BoyLoverExtreme</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-gray-500">Emoji Analysis:</span>
+                                <span class="text-cyan-400">HEARTS (99% usage)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-8 p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20 text-center">
-                    <p class="text-cyan-300">The algorithm has spoken. Truth is unavoidable.</p>
+
+                <div class="mt-10 p-6 bg-red-500/10 rounded-2xl border border-red-500/30">
+                    <p class="text-red-400 text-center font-bold text-sm uppercase tracking-tighter">
+                        ULTIMATE PROOF: Subjects were caught holding hands in a private 2023 server logs.
+                    </p>
                 </div>
-                <button onclick="closeEvidence()" class="mt-6 w-full py-2 border border-white/20 rounded hover:bg-white/5">CLOSE</button>
+                
+                <button onclick="closeEvidence()" class="mt-8 w-full py-4 border border-white/10 rounded-xl hover:bg-white/5 transition-colors uppercase font-bold tracking-widest text-xs">I HAVE WITNESSED THE TRUTH</button>
             </div>
         </div>
 
         <!-- Footer Ticker -->
-        <div class="fixed bottom-0 left-0 right-0 py-4 bg-black/50 backdrop-blur-sm border-t border-white/10 overflow-hidden">
-            <div class="whitespace-nowrap flex animate-[scroll_20s_linear_infinite]">
-                <span class="mx-4 text-xs text-gray-500">ALERT: JOHNROBLOXKOL LIKES MEN —</span>
-                <span class="mx-4 text-xs text-gray-500">SYSTEM BREACH DETECTED —</span>
-                <span class="mx-4 text-xs text-gray-500">CONFIRMED VIA BLOCKCHAIN —</span>
-                <span class="mx-4 text-xs text-gray-500">JOHNROBLOXKOL LIKES MEN —</span>
-                <span class="mx-4 text-xs text-gray-500">NO CAP DETECTED —</span>
-                <span class="mx-4 text-xs text-gray-500">JOHNROBLOXKOL LIKES MEN —</span>
+        <div class="fixed bottom-0 left-0 right-0 py-3 bg-black/80 backdrop-blur-md border-t border-white/5 overflow-hidden">
+            <div class="whitespace-nowrap flex animate-[scroll_25s_linear_infinite]">
+                <span class="mx-6 text-[10px] text-gray-500 font-mono uppercase">DATABASE BREACH DETECTED —</span>
+                <span class="mx-6 text-[10px] text-red-500 font-bold uppercase">JOHNROBLOXKOL LIKES MEN —</span>
+                <span class="mx-6 text-[10px] text-gray-500 font-mono uppercase">SYSTEM OVERRIDE ACTIVE —</span>
+                <span class="mx-6 text-[10px] text-cyan-400 font-bold uppercase">GUARD LIKES MEN —</span>
+                <span class="mx-6 text-[10px] text-gray-500 font-mono uppercase">100% VERIFIED TRUTH —</span>
+                <span class="mx-6 text-[10px] text-red-500 font-bold uppercase">JOHNROBLOXKOL LIKES MEN —</span>
+                <span class="mx-6 text-[10px] text-cyan-400 font-bold uppercase">GUARD LIKES MEN —</span>
             </div>
         </div>
     </main>
@@ -196,18 +245,19 @@
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
+        let progressInterval;
 
         function initCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             particles = [];
-            for(let i = 0; i < 100; i++) {
+            for(let i = 0; i < 80; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: Math.random() * 2,
-                    speedX: (Math.random() - 0.5) * 1,
-                    speedY: (Math.random() - 0.5) * 1,
+                    size: Math.random() * 2 + 1,
+                    speedX: (Math.random() - 0.5) * 0.8,
+                    speedY: (Math.random() - 0.5) * 0.8,
                     color: Math.random() > 0.5 ? '#00f2ff' : '#7000ff'
                 });
             }
@@ -218,13 +268,16 @@
             particles.forEach(p => {
                 p.x += p.speedX;
                 p.y += p.speedY;
-                if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-                if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+                
+                if(p.x < 0) p.x = canvas.width;
+                if(p.x > canvas.width) p.x = 0;
+                if(p.y < 0) p.y = canvas.height;
+                if(p.y > canvas.height) p.y = 0;
                 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
-                ctx.globalAlpha = 0.5;
+                ctx.globalAlpha = 0.3;
                 ctx.fill();
             });
             requestAnimationFrame(animateParticles);
@@ -235,50 +288,46 @@
             animateParticles();
 
             const loadMessages = [
-                "BYPASSING ROBLOX FIREWALL...",
-                "EXTRACTING CHAT LOGS...",
-                "ANALYZING AVATAR CUSTOMIZATION...",
-                "VERIFYING ORIENTATION STATUS...",
-                "GENERATING TRUTH REPORT..."
+                "BYPASSING SECURITY...",
+                "EXTRACTING LOGS...",
+                "SNIFFING PACKETS...",
+                "MAPPING PREFERENCES...",
+                "GENERATING JOINT DOSSIER...",
+                "FINALIZING EXPOSURE..."
             ];
             
             let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 5;
+            progressInterval = setInterval(() => {
+                progress += Math.random() * 4;
                 if(progress >= 100) {
                     progress = 100;
-                    clearInterval(interval);
                     completeLoading();
                 }
-                document.getElementById('progress-bar').style.width = progress + '%';
+                const bar = document.getElementById('progress-bar');
+                if(bar) bar.style.width = progress + '%';
+                
                 const msgIndex = Math.floor((progress / 100) * loadMessages.length);
-                if(loadMessages[msgIndex]) {
-                    document.getElementById('load-text').innerText = loadMessages[msgIndex];
+                const textEl = document.getElementById('load-text');
+                if(textEl && loadMessages[msgIndex]) {
+                    textEl.innerText = loadMessages[msgIndex];
                 }
-            }, 80);
+            }, 100);
         });
 
         function completeLoading() {
+            clearInterval(progressInterval);
+            const loader = document.getElementById('loader');
+            const main = document.getElementById('main-content');
+            if(!loader) return;
+            
+            loader.style.opacity = '0';
             setTimeout(() => {
-                const loader = document.getElementById('loader');
-                const main = document.getElementById('main-content');
-                loader.style.opacity = '0';
+                loader.style.display = 'none';
+                main.classList.remove('hidden');
                 setTimeout(() => {
-                    loader.style.display = 'none';
-                    main.classList.remove('hidden');
-                    setTimeout(() => main.style.opacity = '1', 50);
-                }, 1000);
-            }, 500);
-        }
-
-        function moveButton() {
-            const btn = document.getElementById('no-btn');
-            const x = Math.random() * (window.innerWidth - btn.clientWidth);
-            const y = Math.random() * (window.innerHeight - btn.clientHeight);
-            btn.style.position = 'fixed';
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
-            btn.innerText = "YOU CAN'T RUN";
+                    main.style.opacity = '1';
+                }, 50);
+            }, 800);
         }
 
         function revealEvidence() {
@@ -289,17 +338,14 @@
             document.getElementById('evidence-modal').classList.add('hidden');
         }
 
-        window.addEventListener('resize', initCanvas);
-
-        /* Custom animation for ticker */
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes scroll {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') {
+                completeLoading();
+                closeEvidence();
             }
-        `;
-        document.head.appendChild(style);
+        });
+
+        window.addEventListener('resize', initCanvas);
     </script>
 </body>
 </html>
